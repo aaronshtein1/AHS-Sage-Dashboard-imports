@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-changeme}@db:5432/sage_fpa
+      - INTACCT_SENDER_ID=${INTACCT_SENDER_ID}
+      - INTACCT_SENDER_PASSWORD=${INTACCT_SENDER_PASSWORD}
+      - INTACCT_COMPANY_ID=${INTACCT_COMPANY_ID}
+      - INTACCT_USER_ID=${INTACCT_USER_ID}
+      - INTACCT_USER_PASSWORD=${INTACCT_USER_PASSWORD}
+      - INTACCT_ENDPOINT=${INTACCT_ENDPOINT:-https://api.intacct.com/ia/xml/xmlgw.phtml}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - sage-network
+
+  db:
+    image: postgres:16-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=sage_fpa
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - sage-network
+    # Uncomment below to expose PostgreSQL port for external access
+    # ports:
+    #   - "5432:5432"
+
+volumes:
+  postgres_data:
+
+networks:
+  sage-network:
+    driver: bridge
