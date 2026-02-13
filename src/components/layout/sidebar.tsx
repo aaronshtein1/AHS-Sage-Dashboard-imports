@@ -18,6 +18,8 @@ import {
   Target,
   GitBranch,
   Briefcase,
+  CreditCard,
+  Wand2,
 } from "lucide-react";
 
 import type { LucideIcon } from "lucide-react";
@@ -74,6 +76,13 @@ const navigation: NavEntry[] = [
     items: [
       { name: "Headcount Plan", href: "/workforce/headcount", icon: Users },
       { name: "Labor Costs", href: "/workforce/labor-cost", icon: DollarSign },
+    ],
+  },
+  {
+    name: "Credit Cards",
+    items: [
+      { name: "Transactions", href: "/credit-cards", icon: CreditCard },
+      { name: "Matching Rules", href: "/credit-cards/rules", icon: Wand2 },
     ],
   },
   {
