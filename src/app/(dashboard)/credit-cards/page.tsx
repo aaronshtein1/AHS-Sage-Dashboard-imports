@@ -28,6 +28,7 @@ import {
   Filter,
   Eye,
   Plus,
+  X,
 } from "lucide-react";
 
 // Demo unreconciled transactions
@@ -154,10 +155,16 @@ export default function CreditCardsPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [showLoginForm, setShowLoginForm] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<typeof demoTransactions[0] | null>(null);
   const [showRuleBuilder, setShowRuleBuilder] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [screenshot, setScreenshot] = useState<string | null>(null);
+
+  // Login form state
+  const [companyId, setCompanyId] = useState("homecare4all");
+  const [userId, setUserId] = useState("ahsolga");
+  const [password, setPassword] = useState("");
 
   // Filter transactions
   const filteredTransactions = demoTransactions.filter(
@@ -167,7 +174,14 @@ export default function CreditCardsPage() {
   );
 
   // Login to Intacct via MCP
-  const handleLogin = async () => {
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
+    if (!companyId || !userId || !password) {
+      setLoginError("Please fill in all credentials");
+      return;
+    }
+
     setIsLoggingIn(true);
     setLoginError(null);
 
@@ -176,9 +190,9 @@ export default function CreditCardsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          companyId: process.env.NEXT_PUBLIC_INTACCT_COMPANY_ID || "",
-          userId: process.env.NEXT_PUBLIC_INTACCT_USER_ID || "",
-          password: "", // Will prompt user
+          companyId,
+          userId,
+          password,
         }),
       });
 
@@ -186,6 +200,8 @@ export default function CreditCardsPage() {
 
       if (response.ok) {
         setIsLoggedIn(true);
+        setShowLoginForm(false);
+        setPassword(""); // Clear password from memory
         if (data.screenshot) {
           setScreenshot(data.screenshot);
         }
@@ -193,7 +209,7 @@ export default function CreditCardsPage() {
         setLoginError(data.error || "Login failed");
       }
     } catch (error) {
-      setLoginError("Failed to connect to MCP server. Make sure Chrome MCP is running.");
+      setLoginError("Failed to connect to MCP server. Make sure Chrome MCP is running on http://localhost:3001");
     } finally {
       setIsLoggingIn(false);
     }
@@ -243,7 +259,7 @@ export default function CreditCardsPage() {
               Connected to Intacct
             </Badge>
           ) : (
-            <Button size="sm" onClick={handleLogin} disabled={isLoggingIn}>
+            <Button size="sm" onClick={() => setShowLoginForm(true)} disabled={isLoggingIn}>
               {isLoggingIn ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
@@ -256,8 +272,93 @@ export default function CreditCardsPage() {
       </Header>
 
       <div className="p-6">
+        {/* Login Form */}
+        {showLoginForm && !isLoggedIn && (
+          <Card className="mb-6 border-blue-200">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <LogIn className="h-5 w-5" />
+                  Connect to Sage Intacct
+                </CardTitle>
+                <CardDescription>
+                  Enter your Intacct credentials to enable browser automation
+                </CardDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowLoginForm(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Company ID</label>
+                    <Input
+                      placeholder="e.g., homecare4all"
+                      value={companyId}
+                      onChange={(e) => setCompanyId(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">User ID</label>
+                    <Input
+                      placeholder="e.g., ahsolga"
+                      value={userId}
+                      onChange={(e) => setUserId(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Password</label>
+                    <Input
+                      type="password"
+                      placeholder="Enter password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {loginError && (
+                  <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-red-700">
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="text-sm">{loginError}</span>
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowLoginForm(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isLoggingIn}>
+                    {isLoggingIn ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Connecting...
+                      </>
+                    ) : (
+                      <>
+                        <LogIn className="mr-2 h-4 w-4" />
+                        Connect via Chrome MCP
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Login Error */}
-        {loginError && (
+        {loginError && !showLoginForm && (
           <Card className="mb-6 border-red-200 bg-red-50">
             <CardContent className="flex items-center gap-3 py-4">
               <AlertCircle className="h-5 w-5 text-red-500" />
@@ -270,7 +371,7 @@ export default function CreditCardsPage() {
         )}
 
         {/* MCP Connection Instructions */}
-        {!isLoggedIn && (
+        {!isLoggedIn && !showLoginForm && (
           <Card className="mb-6 border-blue-200 bg-blue-50">
             <CardContent className="py-4">
               <div className="flex items-start gap-3">
