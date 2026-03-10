@@ -533,6 +533,186 @@ Before requesting help, gather:
 
 ---
 
+## Selector Issues
+
+### Understanding Selectors
+
+The automation uses CSS selectors to interact with ADP and Intacct web interfaces. When these services update their UI, selectors may break.
+
+### Identifying Selector Issues
+
+**Symptoms:**
+- Error: "Element not found"
+- Error: "Timeout waiting for selector"
+- Screenshots show unexpected pages
+
+**Diagnosis:**
+
+1. **Run in non-headless mode**
+   ```bash
+   HEADLESS=false npm run payroll:process
+   ```
+
+2. **Check screenshots**
+   ```bash
+   ls -la screenshots/
+   # Look for recent screenshots showing the error state
+   ```
+
+3. **Compare with working state**
+   - Review what the page looks like
+   - Compare to expected workflow
+
+### How to Update Selectors
+
+Selectors are stored in JSON configuration files for easy updates without code changes.
+
+#### ADP Selectors
+
+Location: `config/adp-selectors.json`
+
+Example structure:
+```json
+{
+  "login": {
+    "usernameInput": {
+      "primary": "#txtUserID",
+      "fallbacks": [
+        "input[name='USER']",
+        "[data-testid='username-input']",
+        "input[placeholder*='User ID']"
+      ],
+      "description": "Username input field"
+    },
+    "passwordInput": {
+      "primary": "#txtPassword",
+      "fallbacks": [
+        "input[type='password']",
+        "[data-testid='password-input']"
+      ],
+      "description": "Password input field"
+    }
+  }
+}
+```
+
+#### Intacct Selectors
+
+Location: `config/intacct-selectors.json`
+
+Example structure:
+```json
+{
+  "login": {
+    "companyIdInput": {
+      "primary": "#company",
+      "fallbacks": [
+        "input[name='company']",
+        "[data-testid='company-input']"
+      ],
+      "description": "Company ID input field"
+    }
+  }
+}
+```
+
+### Steps to Update Selectors
+
+1. **Open the application in a browser**
+   - Navigate to the page where the error occurs
+
+2. **Open Developer Tools**
+   - Right-click on the element that needs to be found
+   - Select "Inspect" or "Inspect Element"
+
+3. **Find reliable selectors**
+   - Look for unique `id` attributes (most reliable)
+   - Look for `name` attributes
+   - Look for `data-testid` or `data-test-id` attributes
+   - Use descriptive class names as last resort
+
+4. **Test selectors in browser console**
+   ```javascript
+   // Test if selector works
+   document.querySelector('#newSelectorId')
+
+   // Test if multiple elements match
+   document.querySelectorAll('.someClass').length
+   ```
+
+5. **Update the JSON configuration file**
+   - Add new primary selector if the old one is broken
+   - Keep old selectors as fallbacks (they might work again)
+   - Always add multiple fallbacks for resilience
+
+6. **Test the changes**
+   ```bash
+   npm run payroll:dry-run
+   ```
+
+### Selector Best Practices
+
+1. **Prefer stable attributes**
+   - `id` attributes (most stable)
+   - `name` attributes
+   - `data-testid` attributes (if available)
+   - ARIA attributes (`aria-label`, `role`)
+
+2. **Avoid fragile selectors**
+   - Auto-generated class names (e.g., `css-1a2b3c4`)
+   - Position-based selectors (e.g., `:nth-child(3)`)
+   - Deep nesting (e.g., `div > div > div > span`)
+
+3. **Add multiple fallbacks**
+   - Include at least 2-3 alternative selectors
+   - Order by reliability (most reliable first)
+
+4. **Include human-readable descriptions**
+   - Help future maintainers understand what each selector targets
+
+### Example: Updating a Broken Selector
+
+Before (broken):
+```json
+{
+  "downloadButton": {
+    "primary": ".old-download-btn",
+    "fallbacks": [],
+    "description": "Download CSV button"
+  }
+}
+```
+
+After (fixed with fallbacks):
+```json
+{
+  "downloadButton": {
+    "primary": "#exportCsvButton",
+    "fallbacks": [
+      "button[data-action='download-csv']",
+      "button:has-text('Download CSV')",
+      ".btn-export-csv",
+      ".old-download-btn"
+    ],
+    "description": "Download CSV button"
+  }
+}
+```
+
+### Selector Types and Playwright Syntax
+
+| Type | Example | When to Use |
+|------|---------|-------------|
+| ID | `#submitButton` | Unique element |
+| Class | `.btn-primary` | Styled elements |
+| Attribute | `[data-testid='login']` | Test attributes |
+| Text | `text=Submit` | Buttons with text |
+| Role | `role=button[name='Submit']` | Accessible elements |
+| Placeholder | `[placeholder='Enter email']` | Input fields |
+| Combined | `button.primary[type='submit']` | Specific element |
+
+---
+
 ## Appendix: Error Codes
 
 | Code | Description | Common Fix |
@@ -546,3 +726,4 @@ Before requesting help, gather:
 | VALIDATION_FAILED | Data validation error | Check mappings, source data |
 | DUPLICATE_ENTRY | Entry already exists | Use --force if appropriate |
 | TIMEOUT | Operation timed out | Increase timeout, retry |
+| SELECTOR_NOT_FOUND | UI element not found | Update selectors (see above) |

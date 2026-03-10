@@ -806,10 +806,8 @@ main().catch((error) => {
 });
 
 // Export for testing
+export type { AutomationConfig, AutomationResult, ProcessingSummary };
 export {
-  AutomationConfig,
-  AutomationResult,
-  ProcessingSummary,
   loadConfig,
   validateEnvironment,
   executeADPPhase,
