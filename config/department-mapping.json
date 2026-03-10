@@ -1,0 +1,129 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-10",
+  "description": "ADP department code to Sage Intacct department ID mapping",
+  "failOnUnmapped": false,
+  "defaultDepartment": null,
+  "mappings": {
+    "ADMIN": {
+      "adpDepartmentCode": "ADMIN",
+      "intacctDepartmentId": "100",
+      "intacctDepartmentName": "Administration",
+      "isActive": true,
+      "description": "Administrative and executive staff"
+    },
+    "HR": {
+      "adpDepartmentCode": "HR",
+      "intacctDepartmentId": "110",
+      "intacctDepartmentName": "Human Resources",
+      "isActive": true,
+      "description": "Human resources department"
+    },
+    "FIN": {
+      "adpDepartmentCode": "FIN",
+      "intacctDepartmentId": "120",
+      "intacctDepartmentName": "Finance",
+      "isActive": true,
+      "description": "Finance and accounting"
+    },
+    "IT": {
+      "adpDepartmentCode": "IT",
+      "intacctDepartmentId": "130",
+      "intacctDepartmentName": "Information Technology",
+      "isActive": true,
+      "description": "IT and systems support"
+    },
+    "OPS": {
+      "adpDepartmentCode": "OPS",
+      "intacctDepartmentId": "200",
+      "intacctDepartmentName": "Operations",
+      "isActive": true,
+      "description": "Operations department"
+    },
+    "CLINICAL": {
+      "adpDepartmentCode": "CLINICAL",
+      "intacctDepartmentId": "300",
+      "intacctDepartmentName": "Clinical Services",
+      "isActive": true,
+      "description": "Clinical and medical staff"
+    },
+    "NURSING": {
+      "adpDepartmentCode": "NURSING",
+      "intacctDepartmentId": "310",
+      "intacctDepartmentName": "Nursing",
+      "isActive": true,
+      "description": "Nursing staff"
+    },
+    "PT": {
+      "adpDepartmentCode": "PT",
+      "intacctDepartmentId": "320",
+      "intacctDepartmentName": "Physical Therapy",
+      "isActive": true,
+      "description": "Physical therapy services"
+    },
+    "OT": {
+      "adpDepartmentCode": "OT",
+      "intacctDepartmentId": "330",
+      "intacctDepartmentName": "Occupational Therapy",
+      "isActive": true,
+      "description": "Occupational therapy services"
+    },
+    "SLP": {
+      "adpDepartmentCode": "SLP",
+      "intacctDepartmentId": "340",
+      "intacctDepartmentName": "Speech Language Pathology",
+      "isActive": true,
+      "description": "Speech language pathology services"
+    },
+    "SALES": {
+      "adpDepartmentCode": "SALES",
+      "intacctDepartmentId": "400",
+      "intacctDepartmentName": "Sales",
+      "isActive": true,
+      "description": "Sales team"
+    },
+    "MKT": {
+      "adpDepartmentCode": "MKT",
+      "intacctDepartmentId": "410",
+      "intacctDepartmentName": "Marketing",
+      "isActive": true,
+      "description": "Marketing department"
+    },
+    "100": {
+      "adpDepartmentCode": "100",
+      "intacctDepartmentId": "100",
+      "intacctDepartmentName": "Administration",
+      "isActive": true,
+      "description": "Numeric code for Administration"
+    },
+    "200": {
+      "adpDepartmentCode": "200",
+      "intacctDepartmentId": "200",
+      "intacctDepartmentName": "Operations",
+      "isActive": true,
+      "description": "Numeric code for Operations"
+    },
+    "300": {
+      "adpDepartmentCode": "300",
+      "intacctDepartmentId": "300",
+      "intacctDepartmentName": "Clinical Services",
+      "isActive": true,
+      "description": "Numeric code for Clinical"
+    }
+  },
+  "_comments": {
+    "usage": "Map ADP department codes to Intacct department IDs",
+    "todo_items": [
+      "TODO: Update department IDs to match your Intacct department structure",
+      "TODO: Add all ADP department codes used in your payroll exports",
+      "TODO: Remove unused sample departments",
+      "TODO: Set 'failOnUnmapped' to true once all departments are mapped",
+      "TODO: Set 'defaultDepartment' for catch-all if needed"
+    ],
+    "notes": [
+      "Department codes are case-sensitive in lookup",
+      "Both text codes (ADMIN) and numeric codes (100) are supported",
+      "Set 'isActive' to false to temporarily disable a mapping"
+    ]
+  }
+}

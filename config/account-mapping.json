@@ -1,0 +1,203 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-10",
+  "description": "ADP account code to Sage Intacct GL account mapping",
+  "failOnUnmapped": false,
+  "defaultAccount": null,
+  "mappings": {
+    "5100": {
+      "adpAccountCode": "5100",
+      "intacctAccountNo": "5100",
+      "intacctAccountTitle": "Salaries and Wages",
+      "isActive": true,
+      "description": "Regular salaries and wages expense",
+      "category": "Payroll Expense",
+      "defaultMemo": "Payroll - Salaries"
+    },
+    "5110": {
+      "adpAccountCode": "5110",
+      "intacctAccountNo": "5110",
+      "intacctAccountTitle": "Overtime Pay",
+      "isActive": true,
+      "description": "Overtime wages expense",
+      "category": "Payroll Expense",
+      "defaultMemo": "Payroll - Overtime"
+    },
+    "5120": {
+      "adpAccountCode": "5120",
+      "intacctAccountNo": "5120",
+      "intacctAccountTitle": "Bonus Pay",
+      "isActive": true,
+      "description": "Employee bonuses",
+      "category": "Payroll Expense",
+      "defaultMemo": "Payroll - Bonuses"
+    },
+    "5130": {
+      "adpAccountCode": "5130",
+      "intacctAccountNo": "5130",
+      "intacctAccountTitle": "Commission Pay",
+      "isActive": true,
+      "description": "Sales commissions",
+      "category": "Payroll Expense",
+      "defaultMemo": "Payroll - Commissions"
+    },
+    "5200": {
+      "adpAccountCode": "5200",
+      "intacctAccountNo": "5200",
+      "intacctAccountTitle": "Payroll Taxes - Employer",
+      "isActive": true,
+      "description": "Employer portion of payroll taxes",
+      "category": "Payroll Tax Expense",
+      "defaultMemo": "Payroll Taxes"
+    },
+    "5210": {
+      "adpAccountCode": "5210",
+      "intacctAccountNo": "5210",
+      "intacctAccountTitle": "FICA - Employer",
+      "isActive": true,
+      "description": "Employer FICA/Social Security",
+      "category": "Payroll Tax Expense",
+      "defaultMemo": "FICA Tax"
+    },
+    "5220": {
+      "adpAccountCode": "5220",
+      "intacctAccountNo": "5220",
+      "intacctAccountTitle": "FUTA Expense",
+      "isActive": true,
+      "description": "Federal unemployment tax",
+      "category": "Payroll Tax Expense",
+      "defaultMemo": "FUTA"
+    },
+    "5230": {
+      "adpAccountCode": "5230",
+      "intacctAccountNo": "5230",
+      "intacctAccountTitle": "SUTA Expense",
+      "isActive": true,
+      "description": "State unemployment tax",
+      "category": "Payroll Tax Expense",
+      "defaultMemo": "SUTA"
+    },
+    "5300": {
+      "adpAccountCode": "5300",
+      "intacctAccountNo": "5300",
+      "intacctAccountTitle": "Employee Benefits",
+      "isActive": true,
+      "description": "Employee benefits expense",
+      "category": "Benefits Expense",
+      "defaultMemo": "Employee Benefits"
+    },
+    "5310": {
+      "adpAccountCode": "5310",
+      "intacctAccountNo": "5310",
+      "intacctAccountTitle": "Health Insurance - Employer",
+      "isActive": true,
+      "description": "Employer health insurance contribution",
+      "category": "Benefits Expense",
+      "defaultMemo": "Health Insurance"
+    },
+    "5320": {
+      "adpAccountCode": "5320",
+      "intacctAccountNo": "5320",
+      "intacctAccountTitle": "401(k) Employer Match",
+      "isActive": true,
+      "description": "Employer 401k matching contribution",
+      "category": "Benefits Expense",
+      "defaultMemo": "401k Match"
+    },
+    "5330": {
+      "adpAccountCode": "5330",
+      "intacctAccountNo": "5330",
+      "intacctAccountTitle": "Life Insurance - Employer",
+      "isActive": true,
+      "description": "Employer life insurance",
+      "category": "Benefits Expense",
+      "defaultMemo": "Life Insurance"
+    },
+    "2100": {
+      "adpAccountCode": "2100",
+      "intacctAccountNo": "2100",
+      "intacctAccountTitle": "Accrued Payroll",
+      "isActive": true,
+      "description": "Accrued payroll liability",
+      "category": "Payroll Liability",
+      "defaultMemo": "Accrued Payroll"
+    },
+    "2110": {
+      "adpAccountCode": "2110",
+      "intacctAccountNo": "2110",
+      "intacctAccountTitle": "Federal Tax Withholding Payable",
+      "isActive": true,
+      "description": "Federal income tax withheld",
+      "category": "Payroll Liability",
+      "defaultMemo": "Federal Tax Withholding"
+    },
+    "2120": {
+      "adpAccountCode": "2120",
+      "intacctAccountNo": "2120",
+      "intacctAccountTitle": "State Tax Withholding Payable",
+      "isActive": true,
+      "description": "State income tax withheld",
+      "category": "Payroll Liability",
+      "defaultMemo": "State Tax Withholding"
+    },
+    "2130": {
+      "adpAccountCode": "2130",
+      "intacctAccountNo": "2130",
+      "intacctAccountTitle": "FICA Payable",
+      "isActive": true,
+      "description": "FICA taxes payable (employee + employer)",
+      "category": "Payroll Liability",
+      "defaultMemo": "FICA Payable"
+    },
+    "2140": {
+      "adpAccountCode": "2140",
+      "intacctAccountNo": "2140",
+      "intacctAccountTitle": "401(k) Contributions Payable",
+      "isActive": true,
+      "description": "401k employee contributions payable",
+      "category": "Payroll Liability",
+      "defaultMemo": "401k Payable"
+    },
+    "2150": {
+      "adpAccountCode": "2150",
+      "intacctAccountNo": "2150",
+      "intacctAccountTitle": "Health Insurance Payable",
+      "isActive": true,
+      "description": "Health insurance premiums payable",
+      "category": "Payroll Liability",
+      "defaultMemo": "Health Insurance Payable"
+    },
+    "1000": {
+      "adpAccountCode": "1000",
+      "intacctAccountNo": "1000",
+      "intacctAccountTitle": "Cash - Operating",
+      "isActive": true,
+      "description": "Main operating cash account",
+      "category": "Cash",
+      "defaultMemo": "Payroll Disbursement"
+    },
+    "1010": {
+      "adpAccountCode": "1010",
+      "intacctAccountNo": "1010",
+      "intacctAccountTitle": "Payroll Clearing",
+      "isActive": true,
+      "description": "Payroll clearing account",
+      "category": "Cash",
+      "defaultMemo": "Payroll Clearing"
+    }
+  },
+  "_comments": {
+    "usage": "Add your ADP account codes as keys and map them to Intacct GL accounts",
+    "todo_items": [
+      "TODO: Review and update account numbers to match your Intacct chart of accounts",
+      "TODO: Add any additional ADP account codes used in your payroll exports",
+      "TODO: Set 'failOnUnmapped' to true once all mappings are complete",
+      "TODO: Set 'defaultAccount' if you want unmapped codes to use a suspense account"
+    ],
+    "notes": [
+      "Account codes are case-sensitive",
+      "Set 'isActive' to false to temporarily disable a mapping",
+      "The 'category' field is for organizational purposes only"
+    ]
+  }
+}
