@@ -1,0 +1,290 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-10",
+  "description": "ADP Workforce Now selector configuration for browser automation",
+
+  "login": {
+    "usernameInput": {
+      "primary": "input[name='user']",
+      "primaryStrategy": "css",
+      "fallbacks": [
+        { "selector": "#user-id", "strategy": "css" },
+        { "selector": "input[type='text'][autocomplete='username']", "strategy": "css" },
+        { "selector": "//input[@name='user' or @id='user-id']", "strategy": "xpath" }
+      ],
+      "description": "Username input field on login page"
+    },
+    "passwordInput": {
+      "primary": "input[name='password']",
+      "primaryStrategy": "css",
+      "fallbacks": [
+        { "selector": "#password", "strategy": "css" },
+        { "selector": "input[type='password']", "strategy": "css" },
+        { "selector": "//input[@type='password']", "strategy": "xpath" }
+      ],
+      "description": "Password input field on login page"
+    },
+    "submitButton": {
+      "primary": "button[type='submit']",
+      "primaryStrategy": "css",
+      "fallbacks": [
+        { "selector": "#submit-btn", "strategy": "css" },
+        { "selector": "button:has-text('Sign In')", "strategy": "text" },
+        { "selector": "input[type='submit']", "strategy": "css" }
+      ],
+      "description": "Login submit button"
+    },
+    "rememberMeCheckbox": {
+      "primary": "input[name='rememberMe']",
+      "primaryStrategy": "css",
+      "fallbacks": [
+        { "selector": "#remember-me", "strategy": "css" },
+        { "selector": "input[type='checkbox']", "strategy": "css" }
+      ],
+      "description": "Remember me checkbox"
+    }
+  },
+
+  "mfa": {
+    "mfaContainer": {
+      "primary": "[data-testid='mfa-container']",
+      "primaryStrategy": "testId",
+      "fallbacks": [
+        { "selector": ".mfa-verification", "strategy": "css" },
+        { "selector": "#mfa-challenge", "strategy": "css" },
+        { "selector": ".two-factor-auth", "strategy": "css" }
+      ],
+      "description": "MFA verification container"
+    },
+    "urlPatterns": [
+      "/mfa/",
+      "/verify/",
+      "/two-factor/",
+      "/challenge/",
+      "step-up"
+    ],
+    "textPatterns": [
+      "Enter verification code",
+      "Two-factor authentication",
+      "Verify your identity",
+      "Security code",
+      "Enter the code sent to"
+    ]
+  },
+
+  "dashboard": {
+    "mainContainer": {
+      "primary": "[data-testid='dashboard-container']",
+      "primaryStrategy": "testId",
+      "fallbacks": [
+        { "selector": "#main-dashboard", "strategy": "css" },
+        { "selector": ".adp-dashboard", "strategy": "css" },
+        { "selector": "main[role='main']", "strategy": "role" }
+      ],
+      "description": "Main dashboard container after login"
+    },
+    "userGreeting": {
+      "primary": "[data-testid='user-greeting']",
+      "primaryStrategy": "testId",
+      "fallbacks": [
+        { "selector": ".welcome-message", "strategy": "css" },
+        { "selector": "text=/Welcome|Hello|Hi,/", "strategy": "text" }
+      ],
+      "description": "User greeting element confirming login"
+    },
+    "navigationMenu": {
+      "primary": "nav[role='navigation']",
+      "primaryStrategy": "role",
+      "fallbacks": [
+        { "selector": "#main-nav", "strategy": "css" },
+        { "selector": ".primary-navigation", "strategy": "css" }
+      ],
+      "description": "Main navigation menu"
+    }
+  },
+
+  "navigation": {
+    "reportsMenu": {
+      "primary": "button:has-text('Reports')",
+      "primaryStrategy": "text",
+      "fallbacks": [
+        { "selector": "[aria-label='Reports']", "strategy": "css" },
+        { "selector": "#reports-menu", "strategy": "css" },
+        { "selector": "a[href*='reports']", "strategy": "css" }
+      ],
+      "description": "Reports menu item in navigation"
+    },
+    "payrollLink": {
+      "primary": "a:has-text('Payroll')",
+      "primaryStrategy": "text",
+      "fallbacks": [
+        { "selector": "[aria-label='Payroll']", "strategy": "css" },
+        { "selector": "#payroll-link", "strategy": "css" },
+        { "selector": "a[href*='payroll']", "strategy": "css" }
+      ],
+      "description": "Payroll section link"
+    },
+    "glReportsLink": {
+      "primary": "a:has-text('General Ledger')",
+      "primaryStrategy": "text",
+      "fallbacks": [
+        { "selector": "a:has-text('GL Reports')", "strategy": "text" },
+        { "selector": "[aria-label='General Ledger Reports']", "strategy": "css" },
+        { "selector": "a[href*='gl-reports']", "strategy": "css" },
+        { "selector": "a[href*='general-ledger']", "strategy": "css" }
+      ],
+      "description": "General Ledger reports link"
+    },
+    "journalEntriesLink": {
+      "primary": "a:has-text('Journal Entries')",
+      "primaryStrategy": "text",
+      "fallbacks": [
+        { "selector": "a:has-text('Payroll Journal')", "strategy": "text" },
+        { "selector": "[aria-label='Journal Entries']", "strategy": "css" },
+        { "selector": "a[href*='journal']", "strategy": "css" }
+      ],
+      "description": "Journal entries link"
+    }
+  },
+
+  "glReports": {
+    "pageHeader": {
+      "primary": "h1:has-text('General Ledger')",
+      "primaryStrategy": "text",
+      "fallbacks": [
+        { "selector": "h1:has-text('GL Reports')", "strategy": "text" },
+        { "selector": ".page-title", "strategy": "css" },
+        { "selector": "[data-testid='gl-header']", "strategy": "testId" }
+      ],
+      "description": "GL reports page header"
+    },
+    "payrollRunsTable": {
+      "primary": "table[data-testid='payroll-runs']",
+      "primaryStrategy": "testId",
+      "fallbacks": [
+        { "selector": ".payroll-runs-grid", "strategy": "css" },
+        { "selector": "table.data-grid", "strategy": "css" },
+        { "selector": "[role='grid']", "strategy": "role" }
+      ],
+      "description": "Table containing payroll runs"
+    },
+    "payrollRunRow": {
+      "primary": "tr[data-testid='payroll-run-row']",
+      "primaryStrategy": "testId",
+      "fallbacks": [
+        { "selector": "tbody tr", "strategy": "css" },
+        { "selector": "[role='row']", "strategy": "role" }
+      ],
+      "description": "Individual payroll run row"
+    },
+    "batchIdCell": {
+      "primary": "td[data-field='batchId']",
+      "primaryStrategy": "css",
+      "fallbacks": [
+        { "selector": "td:nth-child(1)", "strategy": "css" },
+        { "selector": ".batch-id", "strategy": "css" }
+      ],
+      "description": "Batch ID cell in payroll run row"
+    },
+    "dateCell": {
+      "primary": "td[data-field='payrollDate']",
+      "primaryStrategy": "css",
+      "fallbacks": [
+        { "selector": "td:nth-child(2)", "strategy": "css" },
+        { "selector": ".payroll-date", "strategy": "css" }
+      ],
+      "description": "Payroll date cell"
+    },
+    "statusCell": {
+      "primary": "td[data-field='status']",
+      "primaryStrategy": "css",
+      "fallbacks": [
+        { "selector": "td:nth-child(3)", "strategy": "css" },
+        { "selector": ".status-badge", "strategy": "css" }
+      ],
+      "description": "Status cell in payroll run row"
+    },
+    "entryTypeDropdown": {
+      "primary": "select[name='entryType']",
+      "primaryStrategy": "css",
+      "fallbacks": [
+        { "selector": "#entry-type-select", "strategy": "css" },
+        { "selector": "[aria-label='Entry Type']", "strategy": "css" }
+      ],
+      "description": "Entry type selection dropdown"
+    },
+    "downloadButton": {
+      "primary": "button:has-text('Download')",
+      "primaryStrategy": "text",
+      "fallbacks": [
+        { "selector": "button:has-text('Export')", "strategy": "text" },
+        { "selector": "[aria-label='Download']", "strategy": "css" },
+        { "selector": ".download-btn", "strategy": "css" },
+        { "selector": "button[data-action='download']", "strategy": "css" }
+      ],
+      "description": "Download/export button"
+    },
+    "csvFormatOption": {
+      "primary": "input[value='csv']",
+      "primaryStrategy": "css",
+      "fallbacks": [
+        { "selector": "label:has-text('CSV')", "strategy": "text" },
+        { "selector": "[data-format='csv']", "strategy": "css" }
+      ],
+      "description": "CSV format option for download"
+    }
+  },
+
+  "popups": {
+    "closeButton": {
+      "primary": "button[aria-label='Close']",
+      "primaryStrategy": "css",
+      "fallbacks": [
+        { "selector": "button:has-text('Close')", "strategy": "text" },
+        { "selector": ".close-btn", "strategy": "css" },
+        { "selector": "[data-dismiss='modal']", "strategy": "css" }
+      ],
+      "description": "Close button for popups/modals"
+    },
+    "modalContainer": {
+      "primary": "[role='dialog']",
+      "primaryStrategy": "role",
+      "fallbacks": [
+        { "selector": ".modal", "strategy": "css" },
+        { "selector": ".overlay-content", "strategy": "css" }
+      ],
+      "description": "Modal/popup container"
+    }
+  },
+
+  "session": {
+    "sessionExpiredModal": {
+      "primary": "[data-testid='session-expired']",
+      "primaryStrategy": "testId",
+      "fallbacks": [
+        { "selector": ".session-timeout-modal", "strategy": "css" },
+        { "selector": "text=/session.*expired/i", "strategy": "text" }
+      ],
+      "description": "Session expired notification"
+    },
+    "loginRequiredText": [
+      "Your session has expired",
+      "Please log in again",
+      "Session timeout",
+      "Authentication required"
+    ],
+    "loginPageIndicators": [
+      "/login",
+      "/signin",
+      "/authenticate"
+    ]
+  },
+
+  "timeouts": {
+    "pageLoad": 60000,
+    "elementWait": 30000,
+    "downloadWait": 120000,
+    "mfaWait": 180000,
+    "shortWait": 5000
+  }
+}
