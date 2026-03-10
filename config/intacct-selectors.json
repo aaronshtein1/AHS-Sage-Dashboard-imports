@@ -1,0 +1,152 @@
+{
+  "$schema": "./intacct-selectors.schema.json",
+  "_comment": "Selector overrides for Sage Intacct browser automation. Values here will override the defaults in selectors.ts. Only include selectors that need customization for your specific Intacct instance.",
+
+  "login": {
+    "_comment": "Login page selectors - customize if your Intacct instance has custom login UI",
+    "companyIdInput": {
+      "description": "Company ID input field",
+      "primary": "input[name='cid']",
+      "fallbacks": [
+        "#company_id",
+        "input[placeholder*='Company']",
+        "input[aria-label*='Company']"
+      ],
+      "timeout": 10000
+    },
+    "userIdInput": {
+      "description": "User ID input field",
+      "primary": "input[name='uid']",
+      "fallbacks": [
+        "#user_id",
+        "input[placeholder*='User']",
+        "input[aria-label*='User ID']"
+      ],
+      "timeout": 10000
+    },
+    "passwordInput": {
+      "description": "Password input field",
+      "primary": "input[name='pwd']",
+      "fallbacks": [
+        "#password",
+        "input[type='password']",
+        "input[placeholder*='Password']"
+      ],
+      "timeout": 10000
+    },
+    "loginButton": {
+      "description": "Login submit button",
+      "primary": "button[type='submit']",
+      "fallbacks": [
+        "input[type='submit']",
+        "button:has-text('Sign In')",
+        "button:has-text('Log In')"
+      ],
+      "timeout": 10000
+    },
+    "dashboardIndicator": {
+      "description": "Element indicating successful login",
+      "primary": "#dashboard",
+      "fallbacks": [
+        ".dashboard-container",
+        "[data-page='dashboard']",
+        "#main-content"
+      ],
+      "timeout": 30000
+    }
+  },
+
+  "mfa": {
+    "_comment": "MFA selectors - customize based on your MFA provider integration",
+    "mfaPrompt": {
+      "description": "MFA prompt container",
+      "primary": ".mfa-container",
+      "fallbacks": [
+        "#mfa-prompt",
+        ".two-factor-auth",
+        ".verification-prompt"
+      ],
+      "timeout": 5000
+    },
+    "mfaCodeInput": {
+      "description": "MFA code input field",
+      "primary": "input[name='mfa_code']",
+      "fallbacks": [
+        "#mfa-code",
+        "input[placeholder*='code']",
+        "input[type='text'][maxlength='6']"
+      ],
+      "timeout": 5000
+    }
+  },
+
+  "navigation": {
+    "_comment": "Navigation menu selectors - may vary based on Intacct version and customizations",
+    "generalLedgerMenu": {
+      "description": "General Ledger menu item",
+      "primary": "a:has-text('General Ledger')",
+      "fallbacks": [
+        "[data-menu='general-ledger']",
+        "li:has-text('General Ledger')",
+        "#menu-gl"
+      ],
+      "timeout": 10000
+    },
+    "importJournalEntries": {
+      "description": "Import Journal Entries link",
+      "primary": "a:has-text('Import Journal Entries')",
+      "fallbacks": [
+        "a:has-text('Import')",
+        "[data-action='import-journal']",
+        "a[href*='import']"
+      ],
+      "timeout": 10000
+    }
+  },
+
+  "upload": {
+    "_comment": "File upload selectors",
+    "fileInput": {
+      "description": "File input for upload",
+      "primary": "input[type='file']",
+      "fallbacks": [
+        "#file-upload",
+        "input[accept*='.csv']"
+      ],
+      "timeout": 10000
+    },
+    "uploadButton": {
+      "description": "Upload/Submit button",
+      "primary": "button:has-text('Upload')",
+      "fallbacks": [
+        "button:has-text('Import')",
+        "button[type='submit']",
+        "input[type='submit']"
+      ],
+      "timeout": 10000
+    }
+  },
+
+  "confirmation": {
+    "_comment": "Upload confirmation/results selectors",
+    "successMessage": {
+      "description": "Success message after upload",
+      "primary": ".success-message",
+      "fallbacks": [
+        ".alert-success",
+        "[role='alert']:has-text('success')",
+        ".import-success"
+      ],
+      "timeout": 30000
+    },
+    "duplicateWarning": {
+      "description": "Duplicate entry warning",
+      "primary": ".duplicate-warning",
+      "fallbacks": [
+        ":has-text('duplicate')",
+        ":has-text('already exists')"
+      ],
+      "timeout": 5000
+    }
+  }
+}
