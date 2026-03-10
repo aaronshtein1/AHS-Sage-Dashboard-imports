@@ -2,6 +2,42 @@
 
 A modern Financial Planning & Analysis (FP&A) dashboard with Sage Intacct integration, built for healthcare organizations. Features real-time financial reporting, location-based profitability analysis, payer mix analysis, headcount planning, and scenario modeling.
 
+## ADP-to-Intacct Payroll Automation
+
+This project includes an automated payroll journal entry pipeline that:
+
+1. **Downloads** payroll GL reports from ADP Workforce Now
+2. **Transforms** ADP data to Sage Intacct journal entry format
+3. **Validates** entries before upload
+4. **Uploads** journal entries to Sage Intacct
+
+### Quick Start - Payroll Automation
+
+```bash
+# Install dependencies
+npm install
+
+# Copy and configure environment variables
+cp .env.example .env
+# Edit .env with your ADP and Intacct credentials
+
+# Run a dry-run to test (no actual upload)
+npm run payroll:dry-run
+
+# Process the latest payroll batch
+npm run payroll:process-latest
+
+# Check processing status
+npm run payroll:status
+
+# Retry any failed uploads
+npm run payroll:retry-failed
+```
+
+See [docs/SETUP.md](docs/SETUP.md) for detailed setup instructions and [docs/RUNBOOK.md](docs/RUNBOOK.md) for weekly execution procedures.
+
+---
+
 ## Features
 
 ### Financial Statements
@@ -172,6 +208,35 @@ npx prisma migrate dev
 ### Generate Prisma Client
 ```bash
 npx prisma generate
+```
+
+## Payroll Automation Documentation
+
+- [Setup Guide](docs/SETUP.md) - Detailed installation and configuration
+- [Weekly Runbook](docs/RUNBOOK.md) - Step-by-step execution procedures
+- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
+
+### Payroll CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run payroll:process-latest` | Process the most recent payroll batch |
+| `npm run payroll:process-week` | Process all batches for the current week |
+| `npm run payroll:dry-run` | Simulate processing without uploading |
+| `npm run payroll:retry-failed` | Retry previously failed uploads |
+| `npm run payroll:force-reupload` | Force re-upload of entries |
+| `npm run payroll:status` | Show processing status and statistics |
+| `npm run payroll:help` | Display help information |
+
+### Payroll Folder Structure
+
+```
+downloads/payroll-gl/     # ADP download files
+exports/intacct-ready/    # Transformed Intacct files
+screenshots/              # Automation screenshots
+logs/                     # Processing logs
+data/                     # SQLite state database
+config/                   # Mapping configurations
 ```
 
 ## License

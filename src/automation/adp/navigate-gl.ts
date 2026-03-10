@@ -158,7 +158,7 @@ async function handlePopups(
  * Set up popup handler for the context
  */
 export function setupPopupHandler(context: BrowserContext): void {
-  context.on('page', async (page) => {
+  context.on('page', async (page: Page) => {
     const url = page.url();
     logger.debug('New page opened', { url });
 
