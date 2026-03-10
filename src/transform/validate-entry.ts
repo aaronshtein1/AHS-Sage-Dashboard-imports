@@ -613,7 +613,4 @@ export function getValidationSummary(result: ValidationResult): string {
   return lines.join('\n');
 }
 
-/**
- * Export validation options type
- */
-export type { ValidationOptions };
+// ValidationOptions is already exported via the interface declaration above

@@ -43,3 +43,41 @@ coverage/
 
 # Misc
 *.log
+
+# ==============================================================================
+# Payroll Automation - Sensitive Files
+# ==============================================================================
+
+# Downloaded payroll files (may contain PII)
+downloads/payroll-gl/*
+!downloads/payroll-gl/.gitkeep
+
+# Exported files ready for upload
+exports/intacct-ready/*
+!exports/intacct-ready/.gitkeep
+
+# Screenshots (may contain sensitive data)
+screenshots/*
+!screenshots/.gitkeep
+
+# Log files (may contain sensitive info)
+logs/*
+!logs/.gitkeep
+
+# State database (contains processing history)
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Configuration files with credentials
+config/*.json
+!config/.gitkeep
+
+# Backup files
+*.backup
+*.bak
+
+# Temporary files
+*.tmp
+temp/

@@ -59,16 +59,14 @@
  * @module automation/intacct
  */
 
-// Types
-export {
+// Types - use 'export type' for type-only exports (required by isolatedModules)
+export type {
   IntacctCredentials,
-  INTACCT_ENV_VARS,
   UploadResult,
   DuplicateEntryInfo,
   JournalEntryConfirmation,
   JournalEntryState,
   IntacctConfig,
-  DEFAULT_INTACCT_CONFIG,
   SessionState,
   LoginResult,
   NavigationResult,
@@ -78,15 +76,25 @@ export {
   ValidationWarning,
   MfaPromptResult,
   ScreenshotInfo,
-  IntacctAutomationError,
   IntacctErrorCode,
 } from './types';
 
-// Selectors
+// Re-export values (non-types)
 export {
+  INTACCT_ENV_VARS,
+  DEFAULT_INTACCT_CONFIG,
+  IntacctAutomationError,
+} from './types';
+
+// Selectors - use 'export type' for type-only exports
+export type {
   SelectorWithFallbacks,
   SelectorGroup,
   IntacctSelectors,
+} from './selectors';
+
+// Re-export selector values and functions
+export {
   DEFAULT_SELECTORS,
   getSelectors,
   clearSelectorCache,
