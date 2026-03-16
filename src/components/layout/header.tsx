@@ -2,7 +2,13 @@
 
 import { RefreshCw, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface HeaderProps {
   title: string;
@@ -40,12 +46,18 @@ export function Header({
 
       <div className="flex items-center gap-3">
         {periods && period && onPeriodChange && (
-          <Select
-            value={period}
-            onChange={(e) => onPeriodChange(e.target.value)}
-            options={periods}
-            className="w-40"
-          />
+          <Select value={period} onValueChange={onPeriodChange}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Select period" />
+            </SelectTrigger>
+            <SelectContent>
+              {periods.map((p) => (
+                <SelectItem key={p.value} value={p.value}>
+                  {p.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         )}
 
         {children}

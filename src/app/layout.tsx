@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { Providers } from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Sage Intacct FP&A Dashboard",
-  description: "Financial Planning & Analysis dashboard with Sage Intacct integration",
+  title: "OpenLedger - Sage Intacct Replacement",
+  description: "Modern accounting system with multi-tenant support",
 };
 
 export default function RootLayout({
@@ -14,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans antialiased">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

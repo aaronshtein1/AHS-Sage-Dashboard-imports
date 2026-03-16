@@ -1,0 +1,11 @@
+{
+  "companyId": "homecare4all",
+  "userId": "fpadashboard",
+  "senderId": "fpadashboard",
+  "fiscalYearStartMonth": "1",
+  "defaultLocation": "",
+  "autoSyncEnabled": true,
+  "syncInterval": "hourly",
+  "userPassword": "986be8c42ffc6e895595c81f9a1127b3:3cdedcec2de1b2f7e9019a85b5d67e5e",
+  "senderPassword": "05db37f021a3fb5a47c38030f598db14:2ebb70e25abba5a99e64071a3eae61ae"
+}

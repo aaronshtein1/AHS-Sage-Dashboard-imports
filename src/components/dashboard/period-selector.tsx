@@ -1,6 +1,12 @@
 "use client";
 
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { getPeriodLabel, getCurrentPeriod, getPreviousPeriod } from "@/lib/utils";
 
@@ -38,22 +44,34 @@ export function PeriodSelector({
 
   return (
     <div className="flex items-center gap-2">
-      <Select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        options={periods}
-        className="w-36"
-      />
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className="w-36">
+          <SelectValue placeholder="Select period" />
+        </SelectTrigger>
+        <SelectContent>
+          {periods.map((period) => (
+            <SelectItem key={period.value} value={period.value}>
+              {period.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       {showComparison && onComparisonChange && (
         <>
           <span className="text-sm text-zinc-500">compare</span>
-          <Select
-            value={comparisonValue || "prior-period"}
-            onChange={(e) => onComparisonChange(e.target.value)}
-            options={comparisonOptions}
-            className="w-36"
-          />
+          <Select value={comparisonValue || "prior-period"} onValueChange={onComparisonChange}>
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder="Select comparison" />
+            </SelectTrigger>
+            <SelectContent>
+              {comparisonOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </>
       )}
 

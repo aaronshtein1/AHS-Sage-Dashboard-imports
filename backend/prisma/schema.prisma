@@ -1,0 +1,836 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Org {
+  id        String     @id @default(uuid())
+  name      String
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  userRoles UserRole[]
+
+  @@map("orgs")
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  name         String
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  userRoles    UserRole[]
+
+  @@map("users")
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  userId String @map("user_id")
+  orgId  String @map("org_id")
+  role   Role
+  org    Org    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, orgId])
+  @@index([userId])
+  @@index([orgId])
+  @@map("user_roles")
+}
+
+model Account {
+  id                    String                     @id @default(uuid())
+  orgId                 String                     @map("org_id")
+  accountCode           String                     @map("account_code")
+  title                 String
+  accountType           AccountType                @map("account_type")
+  normalBalance         NormalBalance              @map("normal_balance")
+  closingType           ClosingType                @map("closing_type")
+  closeIntoAccountId    String?                    @map("close_into_account_id")
+  parentAccountId       String?                    @map("parent_account_id")
+  category              String?
+  requireDepartment     Boolean                    @default(false) @map("require_department")
+  requireLocation       Boolean                    @default(false) @map("require_location")
+  disallowDirectPosting Boolean                    @default(false) @map("disallow_direct_posting")
+  isBankAccount         Boolean                    @default(false) @map("is_bank_account")
+  bankName              String?                    @map("bank_name")
+  bankAccountNumber     String?                    @map("bank_account_number")
+  bankRoutingNumber     String?                    @map("bank_routing_number")
+  status                AccountStatus              @default(ACTIVE)
+  createdAt             DateTime                   @default(now()) @map("created_at")
+  updatedAt             DateTime                   @updatedAt @map("updated_at")
+  requiredDimensions    AccountRequiredDimension[]
+  closeIntoAccount      Account?                   @relation("CloseInto", fields: [closeIntoAccountId], references: [id])
+  closedFromAccounts    Account[]                  @relation("CloseInto")
+  parentAccount         Account?                   @relation("ParentChild", fields: [parentAccountId], references: [id])
+  childAccounts         Account[]                  @relation("ParentChild")
+  bankMappingsAsOffset  BankAccountMapping[]       @relation("BankMappingOffsetAccount")
+  bankMappingsAsGL      BankAccountMapping[]       @relation("BankMappingGLAccount")
+  bankFeedRules         BankFeedRule[]
+  journalLines          JournalLine[]
+  ledgerPostings        LedgerPosting[]
+  reconSessions         ReconSession[]
+  sourceTransactions    SourceTransaction[]
+  transactionMatches    TransactionMatch[]
+  vendorDefaults        Vendor[]                   @relation("VendorDefaultAccount")
+  customerDefaults      Customer[]                 @relation("CustomerDefaultAccount")
+
+  @@unique([orgId, accountCode])
+  @@index([orgId])
+  @@index([accountType])
+  @@map("accounts")
+}
+
+model DimensionType {
+  id                    String                     @id @default(uuid())
+  orgId                 String                     @map("org_id")
+  code                  String
+  name                  String
+  description           String?
+  sortOrder             Int                        @default(0) @map("sort_order")
+  createdAt             DateTime                   @default(now()) @map("created_at")
+  updatedAt             DateTime                   @updatedAt @map("updated_at")
+  accountRequirements   AccountRequiredDimension[]
+  values                DimensionValue[]
+  journalLineDimensions JournalLineDimension[]
+
+  @@unique([orgId, code])
+  @@index([orgId])
+  @@map("dimension_types")
+}
+
+model DimensionValue {
+  id                    String                 @id @default(uuid())
+  orgId                 String                 @map("org_id")
+  dimensionTypeId       String                 @map("dimension_type_id")
+  code                  String
+  name                  String
+  description           String?
+  status                String                 @default("ACTIVE")
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
+  dimensionType         DimensionType          @relation(fields: [dimensionTypeId], references: [id], onDelete: Cascade)
+  journalLineDimensions JournalLineDimension[]
+
+  @@unique([dimensionTypeId, code])
+  @@index([orgId])
+  @@index([dimensionTypeId])
+  @@map("dimension_values")
+}
+
+model AccountRequiredDimension {
+  id              String        @id @default(uuid())
+  orgId           String        @map("org_id")
+  accountId       String        @map("account_id")
+  dimensionTypeId String        @map("dimension_type_id")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  account         Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  dimensionType   DimensionType @relation(fields: [dimensionTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, dimensionTypeId])
+  @@index([accountId])
+  @@index([dimensionTypeId])
+  @@map("account_required_dimensions")
+}
+
+model Period {
+  id             String         @id @default(uuid())
+  orgId          String         @map("org_id")
+  name           String
+  startDate      DateTime       @map("start_date")
+  endDate        DateTime       @map("end_date")
+  status         String         @default("OPEN")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  journalEntries JournalEntry[]
+
+  @@unique([orgId, name])
+  @@index([orgId])
+  @@index([startDate, endDate])
+  @@map("periods")
+}
+
+model JournalType {
+  id             String         @id @default(uuid())
+  orgId          String         @map("org_id")
+  code           String
+  name           String
+  description    String?
+  isSystemType   Boolean        @default(false) @map("is_system_type")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  journalEntries JournalEntry[]
+
+  @@unique([orgId, code])
+  @@index([orgId])
+  @@map("journal_types")
+}
+
+model JournalBatch {
+  id             String         @id @default(uuid())
+  orgId          String         @map("org_id")
+  batchNumber    String         @map("batch_number")
+  description    String?
+  status         String         @default("DRAFT")
+  postedAt       DateTime?      @map("posted_at")
+  postedBy       String?        @map("posted_by")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  journalEntries JournalEntry[]
+
+  @@unique([orgId, batchNumber])
+  @@index([orgId])
+  @@map("journal_batches")
+}
+
+model JournalEntry {
+  id                 String              @id @default(uuid())
+  orgId              String              @map("org_id")
+  journalTypeId      String              @map("journal_type_id")
+  journalBatchId     String?             @map("journal_batch_id")
+  periodId           String              @map("period_id")
+  entryNumber        String              @map("entry_number")
+  entryDate          DateTime            @map("entry_date")
+  description        String?
+  reference          String?
+  status             String              @default("DRAFT")
+  postedAt           DateTime?           @map("posted_at")
+  postedBy           String?             @map("posted_by")
+  reversedAt         DateTime?           @map("reversed_at")
+  reversedBy         String?             @map("reversed_by")
+  reversalEntryId    String?             @unique @map("reversal_entry_id")
+  isAdjusting        Boolean             @default(false) @map("is_adjusting")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+  journalBatch       JournalBatch?       @relation(fields: [journalBatchId], references: [id])
+  journalType        JournalType         @relation(fields: [journalTypeId], references: [id])
+  period             Period              @relation(fields: [periodId], references: [id])
+  reversalEntry      JournalEntry?       @relation("Reversal", fields: [reversalEntryId], references: [id])
+  reversedFrom       JournalEntry?       @relation("Reversal")
+  lines              JournalLine[]
+  ledgerPostings     LedgerPosting[]
+  sourceTransactions SourceTransaction[]
+
+  @@unique([orgId, entryNumber])
+  @@index([orgId])
+  @@index([journalTypeId])
+  @@index([periodId])
+  @@index([entryDate])
+  @@index([status])
+  @@map("journal_entries")
+}
+
+model JournalLine {
+  id                     String                 @id @default(uuid())
+  journalEntryId         String                 @map("journal_entry_id")
+  lineNumber             Int                    @map("line_number")
+  accountId              String                 @map("account_id")
+  description            String?
+  debitAmount            Decimal                @default(0) @map("debit_amount") @db.Decimal(19, 4)
+  creditAmount           Decimal                @default(0) @map("credit_amount") @db.Decimal(19, 4)
+  createdAt              DateTime               @default(now()) @map("created_at")
+  updatedAt              DateTime               @updatedAt @map("updated_at")
+  dimensions             JournalLineDimension[]
+  account                Account                @relation(fields: [accountId], references: [id])
+  journalEntry           JournalEntry           @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  reconMatches           ReconMatch[]
+  sourceTransactionLinks SourceToJournalLine[]
+
+  @@unique([journalEntryId, lineNumber])
+  @@index([journalEntryId])
+  @@index([accountId])
+  @@map("journal_lines")
+}
+
+model JournalLineDimension {
+  id               String         @id @default(uuid())
+  journalLineId    String         @map("journal_line_id")
+  dimensionTypeId  String         @map("dimension_type_id")
+  dimensionValueId String         @map("dimension_value_id")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  dimensionType    DimensionType  @relation(fields: [dimensionTypeId], references: [id])
+  dimensionValue   DimensionValue @relation(fields: [dimensionValueId], references: [id])
+  journalLine      JournalLine    @relation(fields: [journalLineId], references: [id], onDelete: Cascade)
+
+  @@unique([journalLineId, dimensionTypeId])
+  @@index([journalLineId])
+  @@index([dimensionValueId])
+  @@map("journal_line_dimensions")
+}
+
+model LedgerPosting {
+  id             String       @id @default(uuid())
+  orgId          String       @map("org_id")
+  journalEntryId String       @map("journal_entry_id")
+  accountId      String       @map("account_id")
+  postingDate    DateTime     @map("posting_date")
+  debitAmount    Decimal      @default(0) @map("debit_amount") @db.Decimal(19, 4)
+  creditAmount   Decimal      @default(0) @map("credit_amount") @db.Decimal(19, 4)
+  runningBalance Decimal      @default(0) @map("running_balance") @db.Decimal(19, 4)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  account        Account      @relation(fields: [accountId], references: [id])
+  journalEntry   JournalEntry @relation(fields: [journalEntryId], references: [id])
+
+  @@index([orgId])
+  @@index([accountId])
+  @@index([journalEntryId])
+  @@index([postingDate])
+  @@map("ledger_postings")
+}
+
+model AuditEvent {
+  id           String      @id @default(uuid())
+  orgId        String      @map("org_id")
+  userId       String      @map("user_id")
+  action       AuditAction
+  entityType   String      @map("entity_type")
+  entityId     String      @map("entity_id")
+  previousData Json?       @map("previous_data")
+  newData      Json?       @map("new_data")
+  ipAddress    String?     @map("ip_address")
+  userAgent    String?     @map("user_agent")
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  @@index([orgId])
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_events")
+}
+
+model PlaidItem {
+  id                   String         @id @default(uuid())
+  orgId                String         @map("org_id")
+  plaidItemId          String         @map("plaid_item_id")
+  plaidAccessToken     String         @map("plaid_access_token")
+  plaidInstitutionId   String         @map("plaid_institution_id")
+  plaidInstitutionName String         @map("plaid_institution_name")
+  status               String         @default("active")
+  lastSyncedAt         DateTime?      @map("last_synced_at")
+  createdAt            DateTime       @default(now()) @map("created_at")
+  updatedAt            DateTime       @updatedAt @map("updated_at")
+  accounts             PlaidAccount[]
+
+  @@unique([orgId, plaidItemId])
+  @@index([orgId])
+  @@map("plaid_items")
+}
+
+model PlaidAccount {
+  id               String              @id @default(uuid())
+  plaidItemId      String              @map("plaid_item_id")
+  plaidAccountId   String              @map("plaid_account_id")
+  name             String
+  officialName     String?             @map("official_name")
+  type             String
+  subtype          String?
+  mask             String?
+  currentBalance   Decimal?            @map("current_balance") @db.Decimal(19, 4)
+  availableBalance Decimal?            @map("available_balance") @db.Decimal(19, 4)
+  isoCurrencyCode  String?             @map("iso_currency_code")
+  createdAt        DateTime            @default(now()) @map("created_at")
+  updatedAt        DateTime            @updatedAt @map("updated_at")
+  plaidItem        PlaidItem           @relation(fields: [plaidItemId], references: [id], onDelete: Cascade)
+  transactions     SourceTransaction[]
+
+  @@unique([plaidItemId, plaidAccountId])
+  @@index([plaidItemId])
+  @@map("plaid_accounts")
+}
+
+model SourceTransaction {
+  id                 String                  @id @default(uuid())
+  orgId              String                  @map("org_id")
+  plaidAccountId     String?                 @map("plaid_account_id")
+  plaidTransactionId String?                 @map("plaid_transaction_id")
+  amount             Decimal                 @db.Decimal(19, 4)
+  date               DateTime
+  name               String
+  merchantName       String?                 @map("merchant_name")
+  pending            Boolean                 @default(false)
+  category           String?
+  paymentChannel     String?                 @map("payment_channel")
+  accountId          String?                 @map("account_id")
+  memo               String?
+  categorizedAt      DateTime?               @map("categorized_at")
+  categorizedBy      String?                 @map("categorized_by")
+  journalEntryId     String?                 @map("journal_entry_id")
+  createdAt          DateTime                @default(now()) @map("created_at")
+  updatedAt          DateTime                @updatedAt @map("updated_at")
+  matchConfidence    MatchConfidence?        @map("match_confidence")
+  matchedRuleId      String?                 @map("matched_rule_id")
+  reviewedAt         DateTime?               @map("reviewed_at")
+  reviewedByUserId   String?                 @map("reviewed_by_user_id")
+  status             SourceTransactionStatus @default(PENDING)
+  reconMatches       ReconMatch[]
+  journalLineLinks   SourceToJournalLine[]
+  account            Account?                @relation(fields: [accountId], references: [id])
+  journalEntry       JournalEntry?           @relation(fields: [journalEntryId], references: [id])
+  matchedRule        BankFeedRule?           @relation(fields: [matchedRuleId], references: [id])
+  plaidAccount       PlaidAccount?           @relation(fields: [plaidAccountId], references: [id], onDelete: Cascade)
+  matchSuggestions   TransactionMatch[]
+
+  @@unique([orgId, plaidTransactionId])
+  @@index([orgId])
+  @@index([orgId, status])
+  @@index([plaidAccountId])
+  @@index([date])
+  @@index([matchedRuleId])
+  @@map("source_transactions")
+}
+
+model SourceToJournalLine {
+  id                  String            @id @default(uuid())
+  sourceTransactionId String            @map("source_transaction_id")
+  journalLineId       String            @map("journal_line_id")
+  createdAt           DateTime          @default(now()) @map("created_at")
+  journalLine         JournalLine       @relation(fields: [journalLineId], references: [id], onDelete: Cascade)
+  sourceTransaction   SourceTransaction @relation(fields: [sourceTransactionId], references: [id], onDelete: Cascade)
+
+  @@index([sourceTransactionId])
+  @@index([journalLineId])
+  @@map("source_to_journal_lines")
+}
+
+model BankFeedRule {
+  id                  String              @id @default(uuid())
+  orgId               String              @map("org_id")
+  name                String
+  description         String?
+  priority            Int                 @default(0)
+  isActive            Boolean             @default(true) @map("is_active")
+  ruleType            BankFeedRuleType    @default(CREATION) @map("rule_type")
+  matchType           RuleMatchType       @map("match_type")
+  merchantPattern     String?             @map("merchant_pattern")
+  descriptionPattern  String?             @map("description_pattern")
+  categoryPatterns    String[]            @map("category_patterns")
+  amountMin           Decimal?            @map("amount_min") @db.Decimal(19, 4)
+  amountMax           Decimal?            @map("amount_max") @db.Decimal(19, 4)
+  assignToAccountId   String?             @map("assign_to_account_id")
+  defaultMemo         String?             @map("default_memo")
+  autoPost            Boolean             @default(false) @map("auto_post")
+  dimensionValues     String?             @map("dimension_values")
+  // Matching rule specific fields
+  amountTolerance     Decimal?            @map("amount_tolerance") @db.Decimal(19, 4)
+  dateTolerance       Int?                @map("date_tolerance")
+  matchByReference    Boolean             @default(false) @map("match_by_reference")
+  referencePattern    String?             @map("reference_pattern")
+  matchCount          Int                 @default(0) @map("match_count")
+  lastMatchedAt       DateTime?           @map("last_matched_at")
+  createdAt           DateTime            @default(now()) @map("created_at")
+  updatedAt           DateTime            @updatedAt @map("updated_at")
+  assignToAccount     Account?            @relation(fields: [assignToAccountId], references: [id])
+  matchedTransactions SourceTransaction[]
+
+  @@index([orgId])
+  @@index([orgId, isActive])
+  @@index([orgId, priority])
+  @@index([orgId, ruleType])
+  @@map("bank_feed_rules")
+}
+
+model BankAccountMapping {
+  id                     String   @id @default(uuid())
+  orgId                  String   @map("org_id")
+  plaidAccountId         String   @map("plaid_account_id")
+  glAccountId            String   @map("gl_account_id")
+  enableAutoPosting      Boolean  @default(false) @map("enable_auto_posting")
+  defaultOffsetAccountId String?  @map("default_offset_account_id")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+  defaultOffsetAccount   Account? @relation("BankMappingOffsetAccount", fields: [defaultOffsetAccountId], references: [id])
+  glAccount              Account  @relation("BankMappingGLAccount", fields: [glAccountId], references: [id])
+
+  @@unique([orgId, plaidAccountId])
+  @@index([orgId])
+  @@map("bank_account_mappings")
+}
+
+model TransactionMatch {
+  id                  String            @id @default(uuid())
+  sourceTransactionId String            @map("source_transaction_id")
+  suggestedAccountId  String            @map("suggested_account_id")
+  confidence          MatchConfidence
+  matchReason         String            @map("match_reason")
+  ruleId              String?           @map("rule_id")
+  createdAt           DateTime          @default(now()) @map("created_at")
+  sourceTransaction   SourceTransaction @relation(fields: [sourceTransactionId], references: [id], onDelete: Cascade)
+  suggestedAccount    Account           @relation(fields: [suggestedAccountId], references: [id])
+
+  @@index([sourceTransactionId])
+  @@map("transaction_matches")
+}
+
+model ReconSession {
+  id                        String       @id @default(uuid())
+  orgId                     String       @map("org_id")
+  accountId                 String       @map("account_id")
+  statementBeginningBalance Decimal      @map("statement_beginning_balance") @db.Decimal(19, 4)
+  statementEndingBalance    Decimal      @map("statement_ending_balance") @db.Decimal(19, 4)
+  statementEndDate          DateTime     @map("statement_end_date")
+  status                    String       @default("draft")
+  finalizedAt               DateTime?    @map("finalized_at")
+  finalizedBy               String?      @map("finalized_by")
+  createdAt                 DateTime     @default(now()) @map("created_at")
+  updatedAt                 DateTime     @updatedAt @map("updated_at")
+  matches                   ReconMatch[]
+  account                   Account      @relation(fields: [accountId], references: [id])
+
+  @@index([orgId])
+  @@index([accountId])
+  @@index([statementEndDate])
+  @@map("recon_sessions")
+}
+
+model ReconMatch {
+  id                  String             @id @default(uuid())
+  reconSessionId      String             @map("recon_session_id")
+  sourceTransactionId String?            @map("source_transaction_id")
+  journalLineId       String?            @map("journal_line_id")
+  matchType           String
+  createdAt           DateTime           @default(now()) @map("created_at")
+  journalLine         JournalLine?       @relation(fields: [journalLineId], references: [id])
+  reconSession        ReconSession       @relation(fields: [reconSessionId], references: [id], onDelete: Cascade)
+  sourceTransaction   SourceTransaction? @relation(fields: [sourceTransactionId], references: [id])
+
+  @@index([reconSessionId])
+  @@index([sourceTransactionId])
+  @@index([journalLineId])
+  @@map("recon_matches")
+}
+
+enum Role {
+  admin
+  accountant
+  viewer
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+enum NormalBalance {
+  DEBIT
+  CREDIT
+}
+
+enum ClosingType {
+  CLOSING
+  NON_CLOSING
+  CLOSED_TO
+}
+
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum AuditAction {
+  ACCOUNT_CREATED
+  ACCOUNT_UPDATED
+  JOURNAL_CREATED
+  JOURNAL_UPDATED
+  JOURNAL_POSTED
+  JOURNAL_REVERSED
+  PERIOD_CLOSED
+  PERIOD_REOPENED
+  RECONCILIATION_FINALIZED
+}
+
+enum SourceTransactionStatus {
+  PENDING
+  MATCHED
+  CATEGORIZED
+  POSTED
+  EXCLUDED
+}
+
+enum RuleMatchType {
+  EXACT_MERCHANT
+  CONTAINS_TEXT
+  REGEX_PATTERN
+  AMOUNT_RANGE
+  CATEGORY_MATCH
+  COMBINED
+}
+
+enum BankFeedRuleType {
+  CREATION
+  MATCHING
+}
+
+enum MatchConfidence {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+// ==================== ACCOUNTS PAYABLE ====================
+
+model Vendor {
+  id                 String           @id @default(uuid())
+  orgId              String           @map("org_id")
+  vendorCode         String           @map("vendor_code")
+  name               String
+  displayName        String?          @map("display_name")
+  email              String?
+  phone              String?
+  website            String?
+  taxId              String?          @map("tax_id")
+  paymentTerms       String?          @map("payment_terms")
+  defaultAccountId   String?          @map("default_account_id")
+  addressLine1       String?          @map("address_line_1")
+  addressLine2       String?          @map("address_line_2")
+  city               String?
+  state              String?
+  zipCode            String?          @map("zip_code")
+  country            String?          @default("US")
+  notes              String?
+  status             VendorStatus     @default(ACTIVE)
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  defaultAccount     Account?         @relation("VendorDefaultAccount", fields: [defaultAccountId], references: [id])
+  bills              Bill[]
+  billPayments       BillPayment[]
+
+  @@unique([orgId, vendorCode])
+  @@index([orgId])
+  @@index([orgId, status])
+  @@map("vendors")
+}
+
+model Bill {
+  id               String        @id @default(uuid())
+  orgId            String        @map("org_id")
+  vendorId         String        @map("vendor_id")
+  billNumber       String        @map("bill_number")
+  vendorInvoiceNo  String?       @map("vendor_invoice_no")
+  billDate         DateTime      @map("bill_date")
+  dueDate          DateTime      @map("due_date")
+  description      String?
+  subtotal         Decimal       @db.Decimal(19, 4)
+  taxAmount        Decimal       @default(0) @map("tax_amount") @db.Decimal(19, 4)
+  totalAmount      Decimal       @map("total_amount") @db.Decimal(19, 4)
+  amountPaid       Decimal       @default(0) @map("amount_paid") @db.Decimal(19, 4)
+  status           BillStatus    @default(DRAFT)
+  apAccountId      String        @map("ap_account_id")
+  journalEntryId   String?       @map("journal_entry_id")
+  postedAt         DateTime?     @map("posted_at")
+  postedBy         String?       @map("posted_by")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+  vendor           Vendor        @relation(fields: [vendorId], references: [id])
+  lines            BillLine[]
+  payments         BillPayment[]
+
+  @@unique([orgId, billNumber])
+  @@index([orgId])
+  @@index([vendorId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("bills")
+}
+
+model BillLine {
+  id            String   @id @default(uuid())
+  billId        String   @map("bill_id")
+  lineNumber    Int      @map("line_number")
+  accountId     String   @map("account_id")
+  description   String?
+  quantity      Decimal  @default(1) @db.Decimal(19, 4)
+  unitPrice     Decimal  @map("unit_price") @db.Decimal(19, 4)
+  amount        Decimal  @db.Decimal(19, 4)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  bill          Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  @@unique([billId, lineNumber])
+  @@index([billId])
+  @@map("bill_lines")
+}
+
+model BillPayment {
+  id              String        @id @default(uuid())
+  orgId           String        @map("org_id")
+  vendorId        String        @map("vendor_id")
+  billId          String        @map("bill_id")
+  paymentNumber   String        @map("payment_number")
+  paymentDate     DateTime      @map("payment_date")
+  amount          Decimal       @db.Decimal(19, 4)
+  paymentMethod   String?       @map("payment_method")
+  referenceNumber String?       @map("reference_number")
+  bankAccountId   String        @map("bank_account_id")
+  memo            String?
+  journalEntryId  String?       @map("journal_entry_id")
+  status          PaymentStatus @default(DRAFT)
+  postedAt        DateTime?     @map("posted_at")
+  postedBy        String?       @map("posted_by")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  vendor          Vendor        @relation(fields: [vendorId], references: [id])
+  bill            Bill          @relation(fields: [billId], references: [id])
+
+  @@unique([orgId, paymentNumber])
+  @@index([orgId])
+  @@index([vendorId])
+  @@index([billId])
+  @@map("bill_payments")
+}
+
+// ==================== ACCOUNTS RECEIVABLE ====================
+
+model Customer {
+  id               String            @id @default(uuid())
+  orgId            String            @map("org_id")
+  customerCode     String            @map("customer_code")
+  name             String
+  displayName      String?           @map("display_name")
+  email            String?
+  phone            String?
+  website          String?
+  taxId            String?           @map("tax_id")
+  paymentTerms     String?           @map("payment_terms")
+  defaultAccountId String?           @map("default_account_id")
+  addressLine1     String?           @map("address_line_1")
+  addressLine2     String?           @map("address_line_2")
+  city             String?
+  state            String?
+  zipCode          String?           @map("zip_code")
+  country          String?           @default("US")
+  notes            String?
+  status           CustomerStatus    @default(ACTIVE)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  defaultAccount   Account?          @relation("CustomerDefaultAccount", fields: [defaultAccountId], references: [id])
+  invoices         Invoice[]
+  payments         CustomerPayment[]
+
+  @@unique([orgId, customerCode])
+  @@index([orgId])
+  @@index([orgId, status])
+  @@map("customers")
+}
+
+model Invoice {
+  id              String            @id @default(uuid())
+  orgId           String            @map("org_id")
+  customerId      String            @map("customer_id")
+  invoiceNumber   String            @map("invoice_number")
+  invoiceDate     DateTime          @map("invoice_date")
+  dueDate         DateTime          @map("due_date")
+  description     String?
+  subtotal        Decimal           @db.Decimal(19, 4)
+  taxAmount       Decimal           @default(0) @map("tax_amount") @db.Decimal(19, 4)
+  totalAmount     Decimal           @map("total_amount") @db.Decimal(19, 4)
+  amountPaid      Decimal           @default(0) @map("amount_paid") @db.Decimal(19, 4)
+  status          InvoiceStatus     @default(DRAFT)
+  arAccountId     String            @map("ar_account_id")
+  journalEntryId  String?           @map("journal_entry_id")
+  postedAt        DateTime?         @map("posted_at")
+  postedBy        String?           @map("posted_by")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  customer        Customer          @relation(fields: [customerId], references: [id])
+  lines           InvoiceLine[]
+  payments        CustomerPayment[]
+
+  @@unique([orgId, invoiceNumber])
+  @@index([orgId])
+  @@index([customerId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("invoices")
+}
+
+model InvoiceLine {
+  id          String   @id @default(uuid())
+  invoiceId   String   @map("invoice_id")
+  lineNumber  Int      @map("line_number")
+  accountId   String   @map("account_id")
+  description String?
+  quantity    Decimal  @default(1) @db.Decimal(19, 4)
+  unitPrice   Decimal  @map("unit_price") @db.Decimal(19, 4)
+  amount      Decimal  @db.Decimal(19, 4)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@unique([invoiceId, lineNumber])
+  @@index([invoiceId])
+  @@map("invoice_lines")
+}
+
+model CustomerPayment {
+  id              String        @id @default(uuid())
+  orgId           String        @map("org_id")
+  customerId      String        @map("customer_id")
+  invoiceId       String        @map("invoice_id")
+  paymentNumber   String        @map("payment_number")
+  paymentDate     DateTime      @map("payment_date")
+  amount          Decimal       @db.Decimal(19, 4)
+  paymentMethod   String?       @map("payment_method")
+  referenceNumber String?       @map("reference_number")
+  bankAccountId   String        @map("bank_account_id")
+  memo            String?
+  journalEntryId  String?       @map("journal_entry_id")
+  status          PaymentStatus @default(DRAFT)
+  postedAt        DateTime?     @map("posted_at")
+  postedBy        String?       @map("posted_by")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  customer        Customer      @relation(fields: [customerId], references: [id])
+  invoice         Invoice       @relation(fields: [invoiceId], references: [id])
+
+  @@unique([orgId, paymentNumber])
+  @@index([orgId])
+  @@index([customerId])
+  @@index([invoiceId])
+  @@map("customer_payments")
+}
+
+// ==================== AP/AR ENUMS ====================
+
+enum VendorStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum BillStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  POSTED
+  PARTIALLY_PAID
+  PAID
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  POSTED
+  PARTIALLY_PAID
+  PAID
+  CANCELLED
+}
+
+enum PaymentStatus {
+  DRAFT
+  POSTED
+  VOIDED
+}

@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: openledger-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: openledger
+      POSTGRES_PASSWORD: openledger_dev_password
+      POSTGRES_DB: openledger
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openledger -d openledger"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Adminer - Database Management UI (optional)
+  adminer:
+    image: adminer:latest
+    container_name: openledger-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+
+volumes:
+  postgres_data:

@@ -74,11 +74,15 @@ export class IntacctClient {
       body: xmlBody,
     });
 
-    if (!response.ok) {
+    // Get response text regardless of status - Intacct returns error details in body
+    const responseText = await response.text();
+
+    // If not OK and response is empty or not XML, throw HTTP error
+    if (!response.ok && (!responseText || !responseText.includes("<?xml"))) {
       throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
     }
 
-    return response.text();
+    return responseText;
   }
 
   async getSession(): Promise<SessionData> {
@@ -425,14 +429,42 @@ export class IntacctClient {
 
   // ==================== TEST CONNECTION ====================
 
-  async testConnection(): Promise<{ success: boolean; message: string }> {
+  async testConnection(): Promise<{ success: boolean; message: string; details?: string }> {
     try {
-      const session = await this.getSession();
+      // Build the request to see what we're sending
+      const request = buildGetApiSessionRequest(this.getCredentials());
+      console.log("Sending Intacct request to:", this.endpoint);
+
+      const responseXml = await this.sendRequest(request);
+      console.log("Intacct response:", responseXml.substring(0, 500));
+
+      const response = await parseSessionResponse(responseXml);
+
+      if (!response.success || !response.data) {
+        const errorDetail = response.error?.detail || "";
+        const errorMsg = response.error?.message || "Failed to get session";
+        return {
+          success: false,
+          message: `${errorMsg}${errorDetail ? ` - ${errorDetail}` : ""}`,
+          details: response.error?.code,
+        };
+      }
+
+      // Session typically lasts 1 hour, we'll refresh at 50 minutes
+      this.session = {
+        sessionId: response.data.sessionId,
+        endpoint: response.data.endpoint,
+        expiresAt: new Date(Date.now() + 50 * 60 * 1000),
+      };
+
+      this.endpoint = response.data.endpoint;
+
       return {
         success: true,
-        message: `Connected successfully. Session endpoint: ${session.endpoint}`,
+        message: `Connected successfully. Session endpoint: ${response.data.endpoint}`,
       };
     } catch (error) {
+      console.error("Intacct connection error:", error);
       return {
         success: false,
         message: error instanceof Error ? error.message : "Connection failed",

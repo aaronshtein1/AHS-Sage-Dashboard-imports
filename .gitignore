@@ -43,3 +43,8 @@ coverage/
 
 # Misc
 *.log
+nul
+backend/node_modules/
+backend/dist/
+playwright-report/
+test-results/
